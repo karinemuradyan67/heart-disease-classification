@@ -1,0 +1,239 @@
+# Սրտի Հիվանդության Դասակարգում (Real ML Classification Project)
+
+Այս նախագիծը ներկայացում չէ, այլ լիարժեք աշխատող մեքենայական ուսուցման (ML) համակարգ է, որը իրական տվյալներով սովորում է և կանխատեսում է սրտի հիվանդության առկայությունը (binary classification)։
+
+## 1. Նախագծի նպատակը
+
+Տրված են հիվանդի կլինիկական ցուցանիշներ (տարիք, ճնշում, խոլեստերին, կրծքավանդակի ցավի տեսակ և այլն)։
+Մեր նպատակը է կանխատեսել թիրախային դասը.
+
+- 0 -> առողջ (հիվանդություն չի հայտնաբերվում)
+- 1 -> հիվանդություն (target > 0)
+
+Սա դասական supervised classification խնդիր է, ոչ թե regression, քանի որ ելքը դաս է, ոչ թե անընդհատ թվային արժեք։
+
+## 2. Օգտագործված տվյալները
+
+- Աղբյուր: UCI Cleveland Heart Disease Dataset
+- Ֆայլ: data\heart_disease.csv
+- Մաքրման և վերափոխման արդյունքում ուսուցման համար օգտագործվել է 534 նմուշ
+
+Նշում. train.py-ի մեջ տվյալների ուղին հիմա աշխատում է հարաբերական ձևով (default = data\heart_disease.csv), և history/log-ում նույնպես պահվում է հարաբերական ուղի։
+
+## 3. Ինչ է իրականում արված (ոչ միայն տեսական մաս)
+
+Նախագծում իրականացված է ամբողջ ML pipeline-ը.
+
+1. Տվյալների բեռնում CSV-ից
+2. Մաքրման փուլ.
+	- target-ի սխալ արժեքներով տողերի հեռացում
+	- բացակայող արժեքների մշակում (`ca`, `thal`)
+3. Թիրախի binarization (`target > 0` -> 1)
+4. Feature engineering.
+	- age_group
+	- high_bp
+	- high_chol
+	- stress_index
+5. One-hot encoding categorical ֆիչերների համար
+6. Train/test բաժանում (`stratify=y`, 80/20)
+7. StandardScaler նորմավորում
+8. Բազմաթիվ մոդելների ուսուցում և համեմատություն.
+	- Logistic Regression
+	- KNN (k=13)
+	- Random Forest
+	- Gradient Boosting
+9. Գնահատում մի քանի չափանիշներով.
+	- Accuracy
+	- F1
+	- ROC-AUC
+	- 5-fold cross-validated F1
+10. Լավագույն մոդելի ընտրություն CV F1-ով
+11. Պահպանում սկավառակին.
+	- models/best_model.joblib
+	- models/scaler.joblib
+12. Ուսուցման պատմության պահպանում.
+	- models/training_history.json
+13. Ինտերակտիվ prediction ռեժիմ CLI-ով (`--predict`)
+
+Սա նշանակում է՝ նախագիծը վերջից վերջ աշխատող ML համակարգ է (training + evaluation + persistence + inference)։
+
+## 4. Փաստացի արդյունքները (վերջին գործարկումից)
+
+train.py-ի վերջին գործարկման արդյունքները.
+
+- Լավագույն մոդել: Gradient Boosting
+- Accuracy: 0.9626
+- F1: 0.9574
+- ROC-AUC: 0.9743
+- CV F1: 0.8941 +- 0.0328
+
+Classification report.
+
+- Healthy: precision 0.94, recall 1.00, f1 0.97
+- Disease: precision 1.00, recall 0.92, f1 0.96
+
+Top feature importance (Gradient Boosting).
+
+- thal
+- cp
+- ca
+- stress_index
+- oldpeak
+
+Այս թվերը ցույց են տալիս, որ համակարգը իրականում սովորում է տվյալներից և ունի բարձր որակ դասակարգման խնդրում։
+
+## 5. Ինչ լրացուցիչ աշխատանք է արվել
+
+Դիպլոմային աշխատանքի համար կարևոր է նշել, որ կատարվել է ավելին, քան «մի մոդել աշխատեցնել».
+
+- Մի քանի մոդելի մրցակցային համեմատություն
+- Cross-validation՝ կայունության գնահատման համար
+- Feature engineering՝ բժշկական իմաստ ունեցող նոր ֆիչերներով
+- History tracking՝ յուրաքանչյուր ուսուցման արդյունքների արխիվացում
+- Interactive inference ռեժիմ՝ օգտագործելիության համար
+- Notebook + Script երկակի ճարտարապետություն.
+  - Notebook՝ ուսումնասիրություն/վիզուալիզացիա/բացատրություն
+  - Script՝ production-style վերարտադրելի ուսուցում
+
+## 6. Քայլ առ քայլ գործարկում (Windows)
+
+1. Բացել terminal-ը նախագծի թղթապանակում
+2. Ստեղծել վիրտուալ միջավայր.
+
+```powershell
+py -m venv .venv
+```
+
+3. Տեղադրել գրադարանները.
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
+
+4. Սովորեցնել մոդելները (relative data path-ով).
+
+```powershell
+.\.venv\Scripts\python.exe train.py --data data\heart_disease.csv
+```
+
+5. Դիտել training history.
+
+```powershell
+.\.venv\Scripts\python.exe train.py --history
+```
+
+6. Փորձել ինտերակտիվ կանխատեսում.
+
+```powershell
+.\.venv\Scripts\python.exe train.py --predict
+```
+
+7. (Ընտրովի) Գործարկել notebook-ը ամբողջությամբ.
+
+```powershell
+.\.venv\Scripts\python.exe -m jupyter nbconvert --to notebook --execute --inplace heart_disease_classification.ipynb
+```
+
+## 7. Ինչպես ենք համոզվել, որ նախագիծը լիարժեք աշխատում է
+
+Ապահովվել է հետևյալ ստուգումներով.
+
+1. End-to-end գործարկում train.py-ով հաջող ավարտվել է
+2. Բոլոր չափանիշները հաշվարկվում են առանց runtime error
+3. Լավագույն մոդելն ավտոմատ ընտրվում է և պահպանվում է disk-ին
+4. Scaler-ը նույնպես պահպանվում է և օգտագործվում է prediction-ի ժամանակ
+5. prediction ռեժիմը աշխատում է օգտատիրոջ մուտքագրման հիման վրա
+6. history ֆայլը թարմացվում է յուրաքանչյուր run-ից հետո
+7. տվյալների ուղին աշխատում է հարաբերական ձևաչափով (data\heart_disease.csv)
+
+## 8. Նախագծի կառուցվածք
+
+```text
+ML project/
+|-- data/
+|   `-- heart_disease.csv
+|-- models/
+|   |-- best_model.joblib
+|   |-- scaler.joblib
+|   `-- training_history.json
+|-- heart_disease_classification.ipynb
+|-- train.py
+|-- requirements.txt
+`-- README.md
+```
+
+## 9. Դիպլոմային աշխատանքի համար կարճ եզրակացություն
+
+Այս նախագիծը իրական, վերարտադրելի և տեխնիկապես ամբողջական ML classification համակարգ է։
+Այն ներառում է տվյալների նախապատրաստում, մոդելների ուսուցում, համեմատական գնահատում, լավագույն մոդելի ընտրություն, model persistence, inference և փորձարկելի արդյունքների պատմություն։
+
+Այդ պատճառով այն կարելի է պաշտպանել ոչ թե որպես «սլայդային ներկայացում», այլ որպես ամբողջական աշխատող ինժեներական լուծում։
+
+## 10. Ուղեցույցի պահանջների համապատասխանության պարզ checklist
+
+Ստորև շատ պարզ նշված է՝ ինչ է արված և որտեղ է երևում.
+
+1. Խնդրի տեսակի որոշում (Classification) -> արված է notebook-ում և README-ի սկզբում բացատրված է
+2. Պարտադիր մոդելներ (Logistic Regression, KNN) -> արված է notebook-ում
+3. Տողերի/սյունակների քանակ, տիպեր, describe -> արված է notebook-ում
+4. Կորելացիա, missing values, preprocessing -> արված է notebook-ում
+5. Categorical encoding, normalization, feature engineering -> արված է notebook-ում
+6. Logistic Regression.
+	- coefficients/intercept -> արված է notebook-ում
+	- Accuracy/Precision/Recall -> արված է notebook-ում
+	- confusion matrix -> արված է notebook-ում
+7. KNN.
+	- Accuracy/Precision/Recall -> արված է notebook-ում
+	- confusion matrix -> արված է notebook-ում
+8. README-ում ներկայացված է՝ ինչ ենք արել, ինչ ենք փորձել, վերջնական արդյունք, տվյալների հետևություններ, և մոդելների համեմատություն -> արված է
+9. Հավելյալ աշխատանք (Cross-validation, ROC-AUC, multi-model benchmark, history tracking, interactive prediction) -> արված է
+
+Եզրակացություն՝ տեխնիկական մասով նախագիծը համապատասխանում է ոչ միայն նվազագույն, այլ նաև հավելյալ աշխատանքի մակարդակին։
+
+## 11. Ինչու որոշ մոդելներ ավելի թույլ կամ ավելի լավ արդյունք տվեցին (պարզ բառերով)
+
+1. Logistic Regression լավ աշխատեց, որովհետև.
+	- տվյալներում կան բավական պարզ գծային սահմանով բաժանվող օրինակներ
+	- scaled տվյալների վրա LR-ը կայուն է և քիչ է overfit անում
+
+2. KNN այս dataset-ում ավելի թույլ արդյունք տվեց, որովհետև.
+	- տվյալներում կան կրկնվող/մոտիկ կետեր, որոնք տեղային մակարդակում «շփոթում» են հարևանների մեթոդը
+	- KNN-ը շատ զգայուն է տեղային աղմուկին, հատկապես երբ սահմանի մոտ դասերը խառնված են
+
+3. Gradient Boosting և Random Forest ավելի լավ աշխատեցին, որովհետև.
+	- բռնում են ոչ գծային կապերը
+	- լավ են աշխատում feature interaction-ների դեպքում
+	- այս տվյալների վրա ունեն ավելի բարձր ընդհանրացման որակ
+
+## 12. Ինչ է պետք անել քննությունից առաջ (որպեսզի բարձր գնահատականի շանսը մեծ լինի)
+
+1. GitHub.
+	- ամբողջ նախագիծը push անել
+	- ստուգել, որ README-ը բացվում է ճիշտ և պարզ է
+	- դասախոսին հասանելիություն տալ (private হলে share անել կոնկրետ դասախոսի հետ)
+
+2. Նախապես տեղեկացնել դասախոսին.
+	- ինչ dataset ես ընտրել
+	- ինչ խնդիր ես լուծում (classification)
+
+3. Բանավորի պատրաստում.
+	- բացատրել pipeline-ը 2-3 րոպեում
+	- ասել՝ ինչ փորձեցիր, ինչ չաշխատեց, ինչու
+	- ցույց տալ վերջնական metrics-ը և ընտրված final model-ը
+
+4. Տեսական հարցերի պատրաստում (7-8+ միավորի համար կարևոր).
+	- Logistic Regression գաղափար
+	- KNN-ի աշխատանքային սկզբունք
+	- overfitting/underfitting
+	- train/test split, cross-validation
+	- precision/recall/F1 տարբերությունները
+
+## 13. Պատրաստ կարճ խոսք բանավոր ներկայացման համար
+
+Ես ընտրել եմ սրտի հիվանդության dataset և լուծել եմ classification խնդիր։
+Նախ ուսումնասիրել եմ տվյալները՝ տողերի/սյունակների քանակը, տիպերը, missing values-ը և սյունակների կապը թիրախի հետ։
+Հետո կատարել եմ preprocessing՝ target binarization, missing value handling, encoding, normalization և feature engineering։
+Դրանից հետո ուսուցանել եմ Logistic Regression և KNN մոդելներ, հաշվարկել եմ Accuracy, Precision, Recall և կառուցել confusion matrix։
+Հավելյալ փորձել եմ նաև Random Forest և Gradient Boosting, կատարել եմ cross-validation և ROC-AUC գնահատում։
+Վերջում ընտրվել է լավագույն մոդելը՝ Gradient Boosting, որը տվել է բարձր արդյունք (Accuracy 0.9626, F1 0.9574, ROC-AUC 0.9743)։
+Նախագիծը լիարժեք է, որովհետև ունի training, evaluation, model saving, history tracking և interactive prediction ռեժիմ։
