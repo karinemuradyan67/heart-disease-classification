@@ -228,12 +228,6 @@ ML project/
 	- train/test split, cross-validation
 	- precision/recall/F1 տարբերությունները
 
-## 13. Պատրաստ կարճ խոսք բանավոր ներկայացման համար
 
-Ես ընտրել եմ սրտի հիվանդության dataset և լուծել եմ classification խնդիր։
-Նախ ուսումնասիրել եմ տվյալները՝ տողերի/սյունակների քանակը, տիպերը, missing values-ը և սյունակների կապը թիրախի հետ։
-Հետո կատարել եմ preprocessing՝ target binarization, missing value handling, encoding, normalization և feature engineering։
-Դրանից հետո ուսուցանել եմ Logistic Regression և KNN մոդելներ, հաշվարկել եմ Accuracy, Precision, Recall և կառուցել confusion matrix։
-Հավելյալ փորձել եմ նաև Random Forest և Gradient Boosting, կատարել եմ cross-validation և ROC-AUC գնահատում։
 Վերջում ընտրվել է լավագույն մոդելը՝ Gradient Boosting, որը տվել է բարձր արդյունք (Accuracy 0.9626, F1 0.9574, ROC-AUC 0.9743)։
 Նախագիծը լիարժեք է, որովհետև ունի training, evaluation, model saving, history tracking և interactive prediction ռեժիմ։
